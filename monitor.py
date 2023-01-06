@@ -1,7 +1,6 @@
 import psutil
 import common
 import threading
-import multiprocessing
 import time
 from collections import defaultdict
 import datetime
