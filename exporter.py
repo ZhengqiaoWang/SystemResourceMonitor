@@ -34,7 +34,7 @@ def exportCharts(process_name, data, output_path):
     page.render(os.path.join(output_path, "{}.html".format(process_name)))
 
 
-def export(data_dict: dict, output_path: str):
+def export(data_dict: dict, output_path: str, interval):
     process_dat_path = os.path.join(output_path, "process")
     summury_txt_path = os.path.join(output_path, "summury.txt")
 
@@ -42,6 +42,7 @@ def export(data_dict: dict, output_path: str):
 
     # 统计信息
     close_process_set = set()  # 统计这个时间段内关闭的进程
+    start_process_set = set()  # 统计这个时间段内开启的进程
     start_timestamp = datetime.datetime.now()
     stop_timestamp = datetime.datetime.now()
 
@@ -60,11 +61,19 @@ def export(data_dict: dict, output_path: str):
         if start_timestamp > stat["START_TIME"]:
             start_timestamp = stat["START_TIME"]
 
+    for process_name, pm in data_dict.items():
+        stat = pm.getStatistic()
+        if start_timestamp + datetime.timedelta(milliseconds=interval) < stat["START_TIME"]:
+            # 之后启动的
+            start_process_set.add(process_name)
+
     with open(summury_txt_path, "w") as f:
         f.write("======== 汇总 ========\n")
         f.write("报告时间:{}\n".format(datetime.datetime.now()))
         f.write("统计时间段：{} - {}\n".format(start_timestamp, stop_timestamp))
-        f.write("退出进程({}个):\n".format(len(close_process_set)))
-
+        f.write("======== 打开进程({}个) ========\n".format(len(start_process_set)))
+        for start_process in start_process_set:
+            f.write(start_process + "\n")
+        f.write("======== 关闭进程({}个) ========\n".format(len(close_process_set)))
         for close_process in close_process_set:
             f.write(close_process + "\n")

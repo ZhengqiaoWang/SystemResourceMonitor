@@ -127,7 +127,7 @@ class SysMonitor:
     def export(self, data_path):
         import os
         os.makedirs(data_path, exist_ok=True)
-        exporter.export(self.__process_map, data_path)
+        exporter.export(self.__process_map, data_path, self.__interval)
 
     def stop(self):
         self.__is_running = False
