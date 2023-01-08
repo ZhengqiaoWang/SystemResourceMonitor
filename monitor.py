@@ -65,6 +65,8 @@ class ProcessMonitor:
         return self.__statistic
 
     def __monitorThread(self):
+        process_map = {}
+
         while(self.__is_running):
             pid_num = 0
             cpu_loaded = 0.0
@@ -73,23 +75,32 @@ class ProcessMonitor:
 
             for pid in self.__pids:
                 # TODO 丑陋的代码优化
-                try:
-                    process = psutil.Process(pid=pid)
-                    if(process.name() != self.__process_name):
-                        # 认为pid被复用了
+                if pid not in process_map:
+                    try:
+                        process_map[pid] = psutil.Process(pid=pid)
+                        process = process_map[pid]
+                        if(process.name() != self.__process_name):
+                            # 认为pid被复用了
+                            continue
+                    except psutil.NoSuchProcess as e:
                         continue
+                else:
+                    process = process_map[pid]
+
+                # 合并统计各个信息
+                try:
+                    cpu_loaded += process.cpu_percent()
+                    mem += common.trans_B2MB(process.memory_info().rss)
+                    io += common.trans_B2MB(process.io_counters().write_bytes)
+                    pid_num += 1
                 except psutil.NoSuchProcess as e:
                     continue
-                pid_num += 1
-                # 合并统计各个信息
-                cpu_loaded += process.cpu_percent()
-                mem += common.trans_B2MB(process.memory_info().rss)
-                io += common.trans_B2MB(process.io_counters().write_bytes)
 
             if pid_num == 0:
                 # 所有都结束了
                 self.__statistic["END_TIME"] = datetime.datetime.now()
                 self.__pids.clear()
+                process_map.clear()
 
             self.__recordStat(cpu_loaded, mem, io)
             time.sleep(self.__interval/1000)
