@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 import argparse
 import os
 import shutil
@@ -9,11 +11,13 @@ from SRM import monitor
 # 设定信号捕获
 def onSignalInterHandler(signum, frame):
     global is_running_flag
-    print("正在停止...(整理数据中，可能需要等待一段时间)")
+    print("Stopping...")
+    print("Data handling in progress, please wait for a while...")
     is_running_flag = False
 
 
 if __name__ == '__main__':
+
     argparser = argparse.ArgumentParser()
     argparser.add_argument("-o", "--output", type=str,
                            help="输出位置", required=False, default="./output")
@@ -36,7 +40,7 @@ if __name__ == '__main__':
 
     # 开启监听线程（fake线程）
     sys_monitor.start(args.interval, args.filter)
-    print("\n正在监听... 键盘敲击[Ctrt+c]即可结束统计...")
+    print("\n正在监听... 键盘敲击[CTRL+C]即可结束监听并进行统计...")
     while is_running_flag:
         import time
 

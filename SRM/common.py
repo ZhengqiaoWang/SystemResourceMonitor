@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 # Bytes -> KB MB GB
 def trans_B2KB(val):
     return float(val) / 1024
