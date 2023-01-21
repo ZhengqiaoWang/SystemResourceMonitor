@@ -1,7 +1,8 @@
+import datetime
+import os
+
 from pyecharts import charts
 from pyecharts import options as opts
-import os
-import datetime
 
 
 def exportCharts(process_name, data, output_path):
@@ -10,25 +11,28 @@ def exportCharts(process_name, data, output_path):
 
     page.page_title = "{} 统计信息".format(process_name)
     line_cpu = charts.Line(
-        opts.InitOpts(page_title="{} CPU占用(%)".format(process_name)))\
+        opts.InitOpts(page_title="{} CPU占用(%)".format(process_name))) \
         .set_global_opts(title_opts=opts.TitleOpts(title="CPU占用信息", subtitle="单位: %"))
     line_cpu.add_xaxis(xaxis_data=data["Time"])
     line_cpu.add_yaxis("CPU占用(%)", y_axis=data["CPU"], markline_opts=opts.MarkLineOpts(
-        data=[opts.MarkLineItem(type_="max"), opts.MarkLineItem(type_="average")]), label_opts=opts.LabelOpts(is_show=False))
+        data=[opts.MarkLineItem(type_="max"), opts.MarkLineItem(type_="average")]),
+                       label_opts=opts.LabelOpts(is_show=False))
 
     line_mem = charts.Line(
-        opts.InitOpts(page_title="{} 内存占用(MB)".format(process_name)))\
+        opts.InitOpts(page_title="{} 内存占用(MB)".format(process_name))) \
         .set_global_opts(title_opts=opts.TitleOpts(title="内存占用信息", subtitle="单位: MB"))
     line_mem.add_xaxis(xaxis_data=data["Time"])
     line_mem.add_yaxis("内存(MB)", y_axis=data["MEM"], markline_opts=opts.MarkLineOpts(
-        data=[opts.MarkLineItem(type_="max"), opts.MarkLineItem(type_="average")]), label_opts=opts.LabelOpts(is_show=False))
+        data=[opts.MarkLineItem(type_="max"), opts.MarkLineItem(type_="average")]),
+                       label_opts=opts.LabelOpts(is_show=False))
 
     line_io = charts.Line(
-        opts.InitOpts(page_title="{} IO写(MB)".format(process_name)))\
+        opts.InitOpts(page_title="{} IO写(MB)".format(process_name))) \
         .set_global_opts(title_opts=opts.TitleOpts(title="IO信息", subtitle="单位: MB"))
     line_io.add_xaxis(xaxis_data=data["Time"])
     line_io.add_yaxis("IO写(MB)", y_axis=data["IO"], markline_opts=opts.MarkLineOpts(
-        data=[opts.MarkLineItem(type_="max"), opts.MarkLineItem(type_="average")]), label_opts=opts.LabelOpts(is_show=False))
+        data=[opts.MarkLineItem(type_="max"), opts.MarkLineItem(type_="average")]),
+                      label_opts=opts.LabelOpts(is_show=False))
 
     page.add(line_cpu, line_mem, line_io)
     page.render(os.path.join(output_path, "{}.html".format(process_name)))
@@ -51,7 +55,7 @@ def export(data_dict: dict, output_path: str, interval):
         exportCharts(process_name, stat, process_dat_path)
 
         # 统计summury
-        if(stat["END_TIME"] != None):
+        if (stat["END_TIME"] != None):
             close_process_set.add(process_name)
 
             if stop_timestamp < stat["END_TIME"]:

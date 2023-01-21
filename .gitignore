@@ -131,3 +131,4 @@ dmypy.json
 # 自定义
 result
 output
+.idea/*

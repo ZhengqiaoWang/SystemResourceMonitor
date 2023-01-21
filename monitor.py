@@ -1,11 +1,13 @@
-import psutil
-import common
+import datetime
+import platform
 import threading
 import time
 from collections import defaultdict
-import datetime
+
+import psutil
+
+import common
 import exporter
-import platform
 
 
 def showSystemInfo():
@@ -67,7 +69,7 @@ class ProcessMonitor:
     def __monitorThread(self):
         process_map = {}
 
-        while(self.__is_running):
+        while (self.__is_running):
             pid_num = 0
             cpu_loaded = 0.0
             mem = 0.0
@@ -79,7 +81,7 @@ class ProcessMonitor:
                     try:
                         process_map[pid] = psutil.Process(pid=pid)
                         process = process_map[pid]
-                        if(process.name() != self.__process_name):
+                        if (process.name() != self.__process_name):
                             # 认为pid被复用了
                             continue
                     except psutil.NoSuchProcess as e:
@@ -103,7 +105,7 @@ class ProcessMonitor:
                 process_map.clear()
 
             self.__recordStat(cpu_loaded, mem, io)
-            time.sleep(self.__interval/1000)
+            time.sleep(self.__interval / 1000)
 
     def __clearStatistic(self):
         self.__statistic.clear()
@@ -149,13 +151,13 @@ class SysMonitor:
         子线程函数，用于扫描系统所有的进程，并且归类。再将进程分发给子进程进行监听
         '''
         # 开启子进程
-        while(self.__is_running):
+        while (self.__is_running):
             for process_name, ids in self.__getProcessesInfo().items():
-                if(len(filter) > 0 and process_name not in filter):
+                if (len(filter) > 0 and process_name not in filter):
                     continue
                 self.__distributeProcessName(process_name, ids)
 
-            time.sleep(self.__interval/1000)
+            time.sleep(self.__interval / 1000)
 
         # 取消所有线程和子进程
         for _, pm in self.__process_map.items():
@@ -184,6 +186,6 @@ class SysMonitor:
         self.__process_map.get(process_name).setPidSet(ids)
 
     def __processMonitorFunc(self):
-        while(self.__is_running):
+        while (self.__is_running):
             pass
         # 取消所有监听

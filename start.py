@@ -1,8 +1,9 @@
-import os
 import argparse
-import monitor
-import signal
+import os
 import shutil
+import signal
+
+import monitor
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument("-o", "--output", type=str,
@@ -22,9 +23,8 @@ monitor.showSystemInfo()
 sys_monitor = monitor.SysMonitor()
 is_running_flag = True
 
-## 设定信号捕获
 
-
+# 设定信号捕获
 def onSignalInterHandler(signum, frame):
     global is_running_flag
     print("正在停止...(整理数据中，可能需要等待一段时间)")
@@ -33,12 +33,13 @@ def onSignalInterHandler(signum, frame):
 
 signal.signal(signal.SIGINT, onSignalInterHandler)
 
-## 开启监听线程（fake线程）
+# 开启监听线程（fake线程）
 sys_monitor.start(args.interval, args.filter)
 print()
 print("正在监听... 键盘敲击[Ctrt+c]即可结束统计...")
-while(is_running_flag):
+while is_running_flag:
     import time
+
     time.sleep(1)
 
 sys_monitor.stop()
