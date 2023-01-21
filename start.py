@@ -16,6 +16,38 @@ def onSignalInterHandler(signum, frame):
     is_running_flag = False
 
 
+def send_mail(mail_server, sender_addr, pwd, receivers, output, sender_name='no_reply', subject='监控统计', content=''):
+    """
+    Package process monitoring results and send them to users via email
+    """
+    import iMail, glob
+
+    # Create an email object for iMail
+    mail = iMail.EMAIL(host=mail_server, sender_addr=sender_addr, pwd=pwd, sender_name=sender_name)
+
+    # Set the receiver list
+    mail.set_receiver(receivers)
+
+    # New an email
+    mail.new_mail(subject=subject, encoding='utf-8')
+
+    # If user does not set the content,
+    #   use the content of 'summary.txt';
+    # Else, attach the file and sent it through email
+    if content == '':
+        with open(os.path.join(output, 'summary.txt'), 'r', encoding='utf-8') as file:
+            mail.add_text(content=file.read())
+    else:
+        mail.add_text(content=content)
+        mail.attach_files(os.path.join(output, 'summary.txt'))
+
+    # Attach all output files
+    files = glob.glob(os.path.join(output, 'process/*'))
+    mail.attach_files(files)
+
+    mail.send_mail()
+
+
 if __name__ == '__main__':
 
     argparser = argparse.ArgumentParser()
@@ -25,6 +57,8 @@ if __name__ == '__main__':
                            help="监听时间间隔(毫秒)", required=False, default=5000)
     argparser.add_argument("-f", "--filter", nargs='*',
                            help="限制监听范围，为进程名(如explorer.exe)", default=[])
+    argparser.add_argument("-m", "--mail", type=bool,
+                           help="是否发送邮件通知", default=False)
 
     args = argparser.parse_args()
 
@@ -51,3 +85,11 @@ if __name__ == '__main__':
     sys_monitor.export(args.output)
 
     print("结果输出到：", os.path.abspath(args.output))
+
+    if args.mail:
+        print("邮件发送中，请等待...")
+        try:
+            send_mail('HOST', 'SENDER_MAIL', 'PASSWORD', 'RECEIVERS', args.output)
+            print("邮件发送成功")
+        except:
+            print("邮件发送失败，请自行查看")

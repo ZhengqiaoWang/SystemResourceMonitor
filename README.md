@@ -8,6 +8,7 @@
 2. 哪些进程在你不用的时候突然占用大量资源
 3. 监听系统进程资源占用情况
 4. 关注指定程序的资源变动情况
+5. 通过邮件将监控结果发送给用户
 
 理论上该程序跨平台，我在编码的时候也尽力使用兼容性更强的代码，所以即便出现了兼容性问题也应该很容易定位和解决。
 
@@ -39,7 +40,7 @@ python start.py -h
 
 ```text
 $ python start.py -h
-usage: start.py [-h] [-o OUTPUT] [-i INTERVAL] [-f [FILTER ...]]
+usage: start.py [-h] [-o OUTPUT] [-i INTERVAL] [-f [FILTER ...]] [-m]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -49,6 +50,8 @@ optional arguments:
                         监听时间间隔(毫秒)
   -f [FILTER ...], --filter [FILTER ...]
                         限制监听范围，为进程名(如explorer.exe)
+  -m [False/True], --mail [False/True]
+  						是否使用邮件通知
 ```
 
 #### 监听所有的进程
@@ -88,6 +91,12 @@ python start.py -f notepad.exe Taskmgr.exe -i 1000
 ### 查看结果
 
 默认情况下会在当前目录的`output`目录下生成结果，里面主要有两项：`summury.txt`文件和`process`文件夹。前者主要记录了一些宏观统计信息。后者则包含了众多被监听的进程数据。数据以`html`的形式提供，每个文件名均为`进程名.html`格式，每个网页内包含了三张图表，可自行查看。
+
+#### 邮件通知
+
+该功能基于[iMail](https://github.com/mtics/iMail)
+
+首先需要用户通过指令`-m True`或者`--mail True`来允许使用邮件通知功能，然后用户需要在`start.py`中进行配置，详情请见代码。
 
 ## 如何贡献
 

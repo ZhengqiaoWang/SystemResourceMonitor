@@ -7,7 +7,7 @@ from pyecharts import charts
 from pyecharts import options as opts
 
 
-def resource_chart(page_title, title, subtitle, x_data, y_data, x_label='', y_label=''):
+def resource_chart(page_title, title, subtitle, x_data, y_data, y_label=''):
     line_chart = charts.Line(
         opts.InitOpts(page_title=page_title)
     ).set_global_opts(
@@ -33,24 +33,22 @@ def exportCharts(process_name, data, output_path):
 
     line_cpu = resource_chart(page_title="{} CPU占用(%)".format(process_name),
                               title="CPU占用信息", subtitle="单位: %",
-                              x_data=data["Time"], x_label='时间',
-                              y_data=data["CPU"], y_label="CPU占用(%)")
+                              x_data=data["Time"], y_data=data["CPU"], y_label="CPU占用(%)")
 
     line_mem = resource_chart(page_title="{} 内存占用(MB)".format(process_name),
                               title="内存占用信息", subtitle="单位: MB",
-                              x_data=data["Time"], x_label='时间',
-                              y_data=data["MEM"], y_label="内存(MB)")
+                              x_data=data["Time"], y_data=data["MEM"], y_label="内存(MB)")
 
     line_io = resource_chart(page_title="{} IO写(MB)".format(process_name),
                              title="IO信息", subtitle="单位: MB",
-                             x_data=data["Time"], x_label='时间',
-                             y_data=data["IO"], y_label="IO写(MB)")
+                             x_data=data["Time"], y_data=data["IO"], y_label="IO写(MB)")
 
     page.add(line_cpu, line_mem, line_io)
     page.render(os.path.join(output_path, "{}.html".format(process_name)))
 
 
 def export(data_dict: dict, output_path: str, interval):
+
     process_dat_path = os.path.join(output_path, "process")
     summary_txt_path = os.path.join(output_path, "summary.txt")
 
