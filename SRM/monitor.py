@@ -6,8 +6,7 @@ from collections import defaultdict
 
 import psutil
 
-import common
-import exporter
+from SRM import common, exporter
 
 
 def showSystemInfo():
@@ -32,9 +31,9 @@ def showSystemInfo():
 
 
 class ProcessMonitor:
-    '''
+    """
     进程监视器，根据进程名归并，即将子进程并入父进程计算
-    '''
+    """
 
     def __init__(self, process_name: str) -> None:
         self.__process_name = process_name
@@ -69,7 +68,7 @@ class ProcessMonitor:
     def __monitorThread(self):
         process_map = {}
 
-        while (self.__is_running):
+        while self.__is_running:
             pid_num = 0
             cpu_loaded = 0.0
             mem = 0.0
@@ -81,7 +80,7 @@ class ProcessMonitor:
                     try:
                         process_map[pid] = psutil.Process(pid=pid)
                         process = process_map[pid]
-                        if (process.name() != self.__process_name):
+                        if process.name() != self.__process_name:
                             # 认为pid被复用了
                             continue
                     except psutil.NoSuchProcess as e:
@@ -130,11 +129,11 @@ class SysMonitor:
         self.__thread = None
         self.__process_map = defaultdict(ProcessMonitor)  # 存放各种进程管理器
 
-    def start(self, interval, filter=set()):
+    def start(self, interval, thread_filter=set()):
         self.__is_running = True
         self.__interval = interval
         self.__thread = threading.Thread(
-            target=self.__threadFunc, args=(set(filter),))
+            target=self.__threadFunc, args=(set(thread_filter),))
         self.__thread.start()
 
     def export(self, data_path):
@@ -146,14 +145,14 @@ class SysMonitor:
         self.__is_running = False
         self.__thread.join()
 
-    def __threadFunc(self, filter):
-        '''
+    def __threadFunc(self, thread_filter):
+        """
         子线程函数，用于扫描系统所有的进程，并且归类。再将进程分发给子进程进行监听
-        '''
+        """
         # 开启子进程
-        while (self.__is_running):
+        while self.__is_running:
             for process_name, ids in self.__getProcessesInfo().items():
-                if (len(filter) > 0 and process_name not in filter):
+                if len(thread_filter) > 0 and process_name not in thread_filter:
                     continue
                 self.__distributeProcessName(process_name, ids)
 
@@ -186,6 +185,6 @@ class SysMonitor:
         self.__process_map.get(process_name).setPidSet(ids)
 
     def __processMonitorFunc(self):
-        while (self.__is_running):
+        while self.__is_running:
             pass
         # 取消所有监听

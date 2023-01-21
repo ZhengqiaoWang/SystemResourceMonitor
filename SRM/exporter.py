@@ -40,7 +40,7 @@ def exportCharts(process_name, data, output_path):
 
 def export(data_dict: dict, output_path: str, interval):
     process_dat_path = os.path.join(output_path, "process")
-    summury_txt_path = os.path.join(output_path, "summury.txt")
+    summary_txt_path = os.path.join(output_path, "summury.txt")
 
     os.makedirs(process_dat_path, exist_ok=True)
 
@@ -54,8 +54,8 @@ def export(data_dict: dict, output_path: str, interval):
         stat = pm.getStatistic()
         exportCharts(process_name, stat, process_dat_path)
 
-        # 统计summury
-        if (stat["END_TIME"] != None):
+        # 统计summary
+        if stat["END_TIME"] is not None:
             close_process_set.add(process_name)
 
             if stop_timestamp < stat["END_TIME"]:
@@ -71,7 +71,7 @@ def export(data_dict: dict, output_path: str, interval):
             # 之后启动的
             start_process_set.add(process_name)
 
-    with open(summury_txt_path, "w") as f:
+    with open(summary_txt_path, "w") as f:
         f.write("======== 汇总 ========\n")
         f.write("报告时间:{}\n".format(datetime.datetime.now()))
         f.write("统计时间段：{} - {}\n".format(start_timestamp, stop_timestamp))
