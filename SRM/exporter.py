@@ -1,7 +1,26 @@
+import datetime
+import os
+
 from pyecharts import charts
 from pyecharts import options as opts
-import os
-import datetime
+
+
+def resource_chart(page_title, title, subtitle, x_data, y_data, y_label=''):
+    line_chart = charts.Line(
+        opts.InitOpts(page_title=page_title)
+    ).set_global_opts(
+        title_opts=opts.TitleOpts(title=title, subtitle=subtitle)
+    )
+
+    line_chart.add_xaxis(xaxis_data=x_data)
+    line_chart.add_yaxis(y_label,
+                         y_axis=y_data,
+                         markline_opts=opts.MarkLineOpts(
+                             data=[opts.MarkLineItem(type_="max"), opts.MarkLineItem(type_="average")]),
+                         label_opts=opts.LabelOpts(is_show=False)
+                         )
+
+    return line_chart
 
 
 def exportCharts(process_name, data, output_path):
@@ -9,26 +28,18 @@ def exportCharts(process_name, data, output_path):
         layout=charts.Page.DraggablePageLayout)
 
     page.page_title = "{} 统计信息".format(process_name)
-    line_cpu = charts.Line(
-        opts.InitOpts(page_title="{} CPU占用(%)".format(process_name)))\
-        .set_global_opts(title_opts=opts.TitleOpts(title="CPU占用信息", subtitle="单位: %"))
-    line_cpu.add_xaxis(xaxis_data=data["Time"])
-    line_cpu.add_yaxis("CPU占用(%)", y_axis=data["CPU"], markline_opts=opts.MarkLineOpts(
-        data=[opts.MarkLineItem(type_="max"), opts.MarkLineItem(type_="average")]), label_opts=opts.LabelOpts(is_show=False))
 
-    line_mem = charts.Line(
-        opts.InitOpts(page_title="{} 内存占用(MB)".format(process_name)))\
-        .set_global_opts(title_opts=opts.TitleOpts(title="内存占用信息", subtitle="单位: MB"))
-    line_mem.add_xaxis(xaxis_data=data["Time"])
-    line_mem.add_yaxis("内存(MB)", y_axis=data["MEM"], markline_opts=opts.MarkLineOpts(
-        data=[opts.MarkLineItem(type_="max"), opts.MarkLineItem(type_="average")]), label_opts=opts.LabelOpts(is_show=False))
+    line_cpu = resource_chart(page_title="{} CPU占用(%)".format(process_name),
+                              title="CPU占用信息", subtitle="单位: %",
+                              x_data=data["Time"], y_data=data["CPU"], y_label="CPU占用(%)")
 
-    line_io = charts.Line(
-        opts.InitOpts(page_title="{} IO写(MB)".format(process_name)))\
-        .set_global_opts(title_opts=opts.TitleOpts(title="IO信息", subtitle="单位: MB"))
-    line_io.add_xaxis(xaxis_data=data["Time"])
-    line_io.add_yaxis("IO写(MB)", y_axis=data["IO"], markline_opts=opts.MarkLineOpts(
-        data=[opts.MarkLineItem(type_="max"), opts.MarkLineItem(type_="average")]), label_opts=opts.LabelOpts(is_show=False))
+    line_mem = resource_chart(page_title="{} 内存占用(MB)".format(process_name),
+                              title="内存占用信息", subtitle="单位: MB",
+                              x_data=data["Time"], y_data=data["MEM"], y_label="内存(MB)")
+
+    line_io = resource_chart(page_title="{} IO写(MB)".format(process_name),
+                             title="IO信息", subtitle="单位: MB",
+                             x_data=data["Time"], y_data=data["IO"], y_label="IO写(MB)")
 
     page.add(line_cpu, line_mem, line_io)
     page.render(os.path.join(output_path, "{}.html".format(process_name)))
@@ -36,7 +47,7 @@ def exportCharts(process_name, data, output_path):
 
 def export(data_dict: dict, output_path: str, interval):
     process_dat_path = os.path.join(output_path, "process")
-    summury_txt_path = os.path.join(output_path, "summury.txt")
+    summary_txt_path = os.path.join(output_path, "summary.txt")
 
     os.makedirs(process_dat_path, exist_ok=True)
 
@@ -50,8 +61,8 @@ def export(data_dict: dict, output_path: str, interval):
         stat = pm.getStatistic()
         exportCharts(process_name, stat, process_dat_path)
 
-        # 统计summury
-        if(stat["END_TIME"] != None):
+        # 统计summary
+        if stat["END_TIME"] != None:
             close_process_set.add(process_name)
 
             if stop_timestamp < stat["END_TIME"]:
@@ -67,7 +78,7 @@ def export(data_dict: dict, output_path: str, interval):
             # 之后启动的
             start_process_set.add(process_name)
 
-    with open(summury_txt_path, "w") as f:
+    with open(summary_txt_path, "w", encoding='utf-8') as f:
         f.write("======== 汇总 ========\n")
         f.write("报告时间:{}\n".format(datetime.datetime.now()))
         f.write("统计时间段：{} - {}\n".format(start_timestamp, stop_timestamp))
