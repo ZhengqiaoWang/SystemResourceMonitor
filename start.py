@@ -5,7 +5,36 @@ import os
 import shutil
 import signal
 
-from SRM import monitor
+from SRM import monitor, mail
+
+
+def argParser():
+    """
+    Set the argument parser
+    """
+
+    argparser = argparse.ArgumentParser()
+
+    argparser.add_argument("-o", "--output", type=str,
+                           help="输出位置", required=False, default="./output")
+    argparser.add_argument("-i", "--interval", type=int,
+                           help="监听时间间隔(毫秒)", required=False, default=5000)
+    argparser.add_argument("-f", "--filter", nargs='*',
+                           help="限制监听范围，为进程名(如explorer.exe)", default=[])
+
+    # args for mailing
+    argparser.add_argument("-m", "--mail", type=bool,
+                           help="是否发送邮件通知", default=False)
+    argparser.add_argument("-a", "--address", type=str,
+                           help="通知邮件发件地址", default='')
+    argparser.add_argument("-n", "--name", type=str,
+                           help="发件邮箱名称", default='no_reply')
+    argparser.add_argument("-p", "--password", type=str,
+                           help="发件邮箱密钥", default='')
+    argparser.add_argument("-r", "--receivers", type=str,
+                           help="通知邮箱接收地址", default='')
+
+    return argparser.parse_args()
 
 
 # 设定信号捕获
@@ -16,51 +45,10 @@ def onSignalInterHandler(signum, frame):
     is_running_flag = False
 
 
-def send_mail(mail_server, sender_addr, pwd, receivers, output, sender_name='no_reply', subject='监控统计', content=''):
-    """
-    Package process monitoring results and send them to users via email
-    """
-    import iMail, glob
-
-    # Create an email object for iMail
-    mail = iMail.EMAIL(host=mail_server, sender_addr=sender_addr, pwd=pwd, sender_name=sender_name)
-
-    # Set the receiver list
-    mail.set_receiver(receivers)
-
-    # New an email
-    mail.new_mail(subject=subject, encoding='utf-8')
-
-    # If user does not set the content,
-    #   use the content of 'summary.txt';
-    # Else, attach the file and sent it through email
-    if content == '':
-        with open(os.path.join(output, 'summary.txt'), 'r', encoding='utf-8') as file:
-            mail.add_text(content=file.read())
-    else:
-        mail.add_text(content=content)
-        mail.attach_files(os.path.join(output, 'summary.txt'))
-
-    # Attach all output files
-    files = glob.glob(os.path.join(output, 'process/*'))
-    mail.attach_files(files)
-
-    mail.send_mail()
-
-
 if __name__ == '__main__':
 
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument("-o", "--output", type=str,
-                           help="输出位置", required=False, default="./output")
-    argparser.add_argument("-i", "--interval", type=int,
-                           help="监听时间间隔(毫秒)", required=False, default=5000)
-    argparser.add_argument("-f", "--filter", nargs='*',
-                           help="限制监听范围，为进程名(如explorer.exe)", default=[])
-    argparser.add_argument("-m", "--mail", type=bool,
-                           help="是否发送邮件通知", default=False)
-
-    args = argparser.parse_args()
+    # Calling the parser to set inputs
+    args = argParser()
 
     shutil.rmtree(args.output, ignore_errors=True)
 
@@ -86,10 +74,7 @@ if __name__ == '__main__':
 
     print("结果输出到：", os.path.abspath(args.output))
 
-    if args.mail:
-        print("邮件发送中，请等待...")
-        try:
-            send_mail('HOST', 'SENDER_MAIL', 'PASSWORD', 'RECEIVERS', args.output)
-            print("邮件发送成功")
-        except:
-            print("邮件发送失败，请自行查看")
+    # 设置邮件通知系统
+    mail.MAIL(args).mail()
+
+

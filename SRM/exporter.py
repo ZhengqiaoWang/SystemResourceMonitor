@@ -1,5 +1,3 @@
-# -*- coding: UTF-8 -*-
-
 import datetime
 import os
 
@@ -48,7 +46,6 @@ def exportCharts(process_name, data, output_path):
 
 
 def export(data_dict: dict, output_path: str, interval):
-
     process_dat_path = os.path.join(output_path, "process")
     summary_txt_path = os.path.join(output_path, "summary.txt")
 
@@ -65,7 +62,7 @@ def export(data_dict: dict, output_path: str, interval):
         exportCharts(process_name, stat, process_dat_path)
 
         # 统计summary
-        if stat["END_TIME"] is not None:
+        if stat["END_TIME"] != None:
             close_process_set.add(process_name)
 
             if stop_timestamp < stat["END_TIME"]:
