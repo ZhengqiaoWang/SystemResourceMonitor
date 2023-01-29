@@ -26,13 +26,13 @@ def argParser():
     argparser.add_argument("-m", "--mail", type=bool,
                            help="是否发送邮件通知", default=False)
     argparser.add_argument("-a", "--address", type=str,
-                           help="通知邮件发件地址", default='')
+                           help="邮件发送方地址", default='')
     argparser.add_argument("-n", "--name", type=str,
-                           help="发件邮箱名称", default='no_reply')
+                           help="邮件发送方名称", default='no_reply')
     argparser.add_argument("-p", "--password", type=str,
-                           help="发件邮箱密钥", default='')
-    argparser.add_argument("-r", "--receivers", type=str,
-                           help="通知邮箱接收地址", default='')
+                           help="邮件发送方密钥", default='')
+    argparser.add_argument("-r", "--receiver", type=str,
+                           help="邮件接收方地址", default='')
 
     return argparser.parse_args()
 

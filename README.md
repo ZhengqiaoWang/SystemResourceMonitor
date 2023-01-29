@@ -50,8 +50,17 @@ optional arguments:
                         监听时间间隔(毫秒)
   -f [FILTER ...], --filter [FILTER ...]
                         限制监听范围，为进程名(如explorer.exe)
-  -m [False/True], --mail [False/True]
-  						是否使用邮件通知
+  -m False/True, --mail False/True
+                        是否使用邮件通知
+  -a ADDRESS, --address ADDRESS
+                        邮件发送方地址
+  -n NAME, --name NAME
+                        邮件发送方地址
+  -p PASSWORD, --password PASSWORD
+                        邮件发送方密钥
+  -r RECEIVER, --receiver RECEIVER
+                        邮件接收方地址
+
 ```
 
 #### 监听所有的进程
@@ -96,7 +105,9 @@ python start.py -f notepad.exe Taskmgr.exe -i 1000
 
 该功能基于[iMail](https://github.com/mtics/iMail)
 
-首先需要用户通过指令`-m True`或者`--mail True`来允许使用邮件通知功能，然后用户需要在`start.py`中进行配置，详情请见代码。
+- 首先需要用户通过指令`-m True`或者`--mail True`来允许使用邮件通知功能
+- 然后用户需要通过指令进行相关配置，详情请见代码。
+- 目前通知会在用户停止监听后，将相关输出发送至指定邮箱。
 
 ## 如何贡献
 
