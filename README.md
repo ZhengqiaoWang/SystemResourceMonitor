@@ -13,6 +13,12 @@
 
 ## 如何使用
 
+### 下载程序
+
+```shell
+git clone --recursive git@github.com:ZhengqiaoWang/SystemResourceMonitor.git
+```
+
 ### 环境准备
 
 首先，你需要保证你可以运行`Python3`，如果没有安装`Python3`请移步[Python官方网站](https://www.python.org/)下载安装`Python3`和对应的`Pip`。
