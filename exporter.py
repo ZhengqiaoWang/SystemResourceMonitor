@@ -1,8 +1,11 @@
 from pyecharts import charts
 from pyecharts import options as opts
+from pyecharts.globals import CurrentConfig, OnlineHostType
 import os
 import datetime
+import shutil
 
+CurrentConfig.ONLINE_HOST = "./assets/"
 
 def exportCharts(process_name, data, output_path):
     page = charts.Page(
@@ -39,6 +42,8 @@ def export(data_dict: dict, output_path: str, interval):
     summury_txt_path = os.path.join(output_path, "summury.txt")
 
     os.makedirs(process_dat_path, exist_ok=True)
+    shutil.copytree(os.path.join(os.path.dirname(os.path.abspath(
+        __file__)), "assets", "assets"), os.path.join(process_dat_path, "assets"))
 
     # 统计信息
     close_process_set = set()  # 统计这个时间段内关闭的进程
